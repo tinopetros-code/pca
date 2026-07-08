@@ -1,1 +1,3 @@
-provider "google" {}
+provider "google" {
+    project = "project-pca-501816"
+}
