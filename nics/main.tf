@@ -72,3 +72,44 @@ module "managementnet-us-vm" {
   instance_network = module.managementnet.network_self_link
   instance_subnetwork = module.managementsubnet-us.subnetwork_self_link
 }
+
+module "fake-appliance-vm" {
+  source           = "./instance"
+  instance_name    = "fake-appliance-vm"
+  instance_zone    = "us-central1-a"
+  instance_network = module.default.network_self_link
+}
+
+resource "google_compute_instance" "appliance-vm" {
+    name = "appliance-vm"
+    zone = "us-central1-a"
+    machine_type = "e2-micro"
+    boot_disk {
+        initialize_params {
+            image = "debian-cloud/debian-12"
+        }  
+    }
+    # network interfaces ie. nics
+    network_interface {
+        subnetwork = module.managementsubnet-us.subnetwork_self_link
+    }
+    network_interface {
+        subnetwork = module.privatesubnet-us.subnetwork_self_link
+    }
+    #network_interface {
+    #   subnetwork = "https://googleapis.com{var.project_id}/regions/us-central1/subnetworks/mynetwork"
+    #}
+    shielded_instance_config {
+        enable_secure_boot          = true
+        enable_vtpm                 = true
+        enable_integrity_monitoring = true
+    }
+    scheduling {
+        max_run_duration {
+            seconds = 3600
+            # run for no more than an hour
+        }
+        instance_termination_action = "DELETE"
+        # "TERMINATE" would only turn it off to stop billing, but using the more blunt solution for now
+    }
+}
