@@ -64,3 +64,11 @@ module "private-us-vm" {
   instance_network = module.privatenet.network_self_link
   instance_subnetwork = module.privatesubnet-us.subnetwork_self_link
 }
+
+module "managementnet-us-vm" {
+  source           = "./instance"
+  instance_name    = "managementnet-us-vm"
+  instance_zone    = "us-central1-a"
+  instance_network = module.managementnet.network_self_link
+  instance_subnetwork = module.managementsubnet-us.subnetwork_self_link
+}
